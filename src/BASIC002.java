@@ -1,8 +1,8 @@
 import java.util.Scanner;
 
-public class Main {
+public class BASIC002 {
     public static final int MOD = 1000000007;
-    public int numMusicPlaylists(int n, int goal, int k) {
+    public static int numMusicPlaylists(int n, int goal, int k) {
         long[][] dp = new long[goal + 1][n + 1];
         dp[0][0] = 1;
 
@@ -30,8 +30,7 @@ public class Main {
             int k = sc.nextInt();
             int n = sc.nextInt();
             int goal = sc.nextInt();
-            Main mp = new Main();
-            int result = mp.numMusicPlaylists(n, goal,k);
+            int result = numMusicPlaylists(n, goal, k);
             System.out.println(result);
         }
         sc.close();
