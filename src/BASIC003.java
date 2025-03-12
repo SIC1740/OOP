@@ -16,3 +16,4 @@ public class BASIC003 {
         sc.close();
     }
 }
+// Lưu ý khi nộp nhớ đổi tên class thành Main
