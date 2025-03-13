@@ -4,19 +4,17 @@ public class BASIC009 {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int t = sc.nextInt();
+        sc.nextLine();
         while (t-- > 0) {
-            int x = sc.nextInt();
-            int y = sc.nextInt();
-            if(x > 0 && y > 0)
-                    System.out.println("1");
-            else if (x < 0 && y > 0)
-                System.out.println("2");
-            else if (x < 0 && y < 0)
-                System.out.println("3");
-            else if (x > 0 && y < 0)
-                System.out.println("4");
-            else
-                System.out.println("0");
+            String s = sc.nextLine();
+            char[] swapDigits = s.toCharArray();
+            for(int i = (s.length() % 2 ==0)?0:1; i<s.length(); i+=2) {
+                char temp = swapDigits[i];
+                swapDigits[i] = swapDigits[i+1];
+                swapDigits[i+1] = temp;
+            }
+            System.out.println(swapDigits);
         }
+        sc.close();
     }
 }
