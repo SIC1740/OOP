@@ -13,3 +13,4 @@ public class STRING002 {
         sc.close();
     }
 }
+//Tìm chữ cái ở vị trí index

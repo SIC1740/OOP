@@ -20,3 +20,4 @@ public class STRING006 {
         sc.close();
     }
 }
+//Chữ cái đầu tiên
