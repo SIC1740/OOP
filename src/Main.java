@@ -1,7 +1,14 @@
-import java.util.Scanner;
+package com.gpcoder.console;
 
+import java.io.Console;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String args[]) {
+        Console c = System.console();
+        System.out.println("Enter password: ");
+        char[] ch = c.readPassword();
+        // convert char array into string
+        String pass = String.valueOf(ch);
+        System.out.println("Password is: " + pass);
     }
 }

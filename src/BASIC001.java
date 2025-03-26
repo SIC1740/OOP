@@ -8,8 +8,7 @@ public class BASIC001{
         int a = sc.nextInt();
         sc.nextLine();
         while (a-- >0){
-            Scanner sc1 = new Scanner(System.in);
-            String s = sc1.nextLine();
+            String s = sc.nextLine();
             System.out.println(s);
         }
         sc.close();
