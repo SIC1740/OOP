@@ -1,0 +1,124 @@
+BASIC002
+Chúng ta cùng phân tích mấu chốt của bài toán và cách suy ra công thức bằng các bước sau:
+
+---
+
+## 1. Hiểu bài toán
+
+- **Bài toán:**  
+  Cho \( n \) bài hát khác nhau, cần tạo một danh sách phát dài \( goal \) sao cho:
+  - Mỗi bài hát xuất hiện ít nhất một lần.
+  - Một bài hát không thể được chọn lại nếu chưa có \( k \) bài khác được phát kể từ lần nó được chọn trước đó.
+
+- **Mục tiêu:**  
+  Đếm số danh sách phát thỏa mãn các điều kiện trên, với kết quả trả về theo modulo \( 10^9 + 7 \).
+
+---
+
+## 2. Xây dựng trạng thái DP
+
+Chúng ta định nghĩa một bảng \( dp[i][j] \) với ý nghĩa:  
+> "Số cách tạo danh sách phát có độ dài \( i \) chứa đúng \( j \) bài hát khác nhau."
+
+Điều này cho phép chúng ta chia bài toán thành các bước xây dựng dần dần, theo chiều từ danh sách phát rỗng đến danh sách phát có độ dài \( goal \).
+
+- **Trạng thái cơ bản:**  
+  \( dp[0][0] = 1 \)  
+  (Có đúng 1 cách tạo danh sách rỗng với 0 bài hát.)
+
+---
+
+## 3. Hai trường hợp chuyển trạng thái
+
+Khi đã có danh sách phát độ dài \( i \) chứa \( j \) bài hát khác nhau, ta có hai khả năng khi thêm phần tử thứ \( i+1 \):
+
+### a) Thêm một bài hát mới
+
+- **Điều kiện:**  
+  Chỉ khả thi nếu \( j < n \) (vẫn còn bài nào chưa được dùng).
+
+- **Số cách:**  
+  Với \( n - j \) bài hát chưa được sử dụng, mỗi cách chọn một bài mới sẽ tăng số bài hát khác nhau từ \( j \) lên \( j+1 \).
+
+- **Công thức:**  
+  \[
+  dp[i+1][j+1] = dp[i+1][j+1] + dp[i][j] \times (n - j)
+  \]
+  
+### b) Lặp lại một bài hát đã dùng
+
+- **Điều kiện:**  
+  Khi ta chọn lặp lại một bài hát, do quy tắc “không cho lặp lại ngay” ta chỉ được chọn từ số bài hát đã xuất hiện nhưng không bị “khoá”.  
+  Do đó, nếu trong \( j \) bài hát đã có, theo quy tắc cần có ít nhất \( k \) bài khác giữa các lần phát, chỉ có \( j - k \) bài có thể chọn lại (nếu \( j > k \)).  
+  Nếu \( j \le k \), không có bài nào được phép lặp lại vì điều kiện chưa được thỏa mãn.
+
+- **Công thức:**  
+  \[
+  dp[i+1][j] = dp[i+1][j] + dp[i][j] \times (j - k) \quad \text{(với } j > k \text{)}
+  \]
+
+---
+
+## 4. Tóm tắt công thức chuyển trạng thái
+
+- **Thêm bài mới:**  
+  \[
+  dp[i+1][j+1] += dp[i][j] \times (n - j)
+  \]
+
+- **Lặp lại bài cũ:**  
+  \[
+  dp[i+1][j] += dp[i][j] \times (j - k) \quad \text{(chỉ khi } j > k \text{)}
+  \]
+
+Sau cùng, đáp số cần tìm là \( dp[goal][n] \), nghĩa là danh sách phát có độ dài \( goal \) chứa đủ \( n \) bài hát khác nhau.
+
+---
+
+## 5. Từ đâu suy ra công thức này?
+
+- **Phân tích từng bước chọn:**  
+  Khi xây dựng danh sách phát, mỗi bước quyết định có hai khả năng: chọn một bài hát mới hoặc lặp lại một bài hát đã dùng.  
+  Việc “chia nhỏ” bài toán theo số lượng bài hát đã được sử dụng (đặc trưng của trạng thái \( j \)) giúp ta dễ dàng tính số lựa chọn cho mỗi bước.
+
+- **Lý do số lựa chọn là \( (j-k) \) khi lặp lại:**  
+  Giả sử bạn đã có \( j \) bài hát khác nhau. Quy tắc “không lặp lại ngay” ngăn cấm việc chọn các bài hát xuất hiện quá gần đây.  
+  Khi xây dựng dãy theo chiều từ trái qua phải, có thể chứng minh (qua lập luận tổ hợp) rằng số bài hát được phép chọn để lặp lại là \( j - k \) (với điều kiện \( j > k \)).  
+  Điều này đảm bảo rằng nếu bạn lặp lại một bài hát, nó không phải là một trong những bài hát “mới” được thêm vào trong \( k \) bước gần nhất.
+
+- **Cách tiếp cận DP:**  
+  Sử dụng DP giúp ta “gộp” các trạng thái trung gian mà không cần theo dõi vị trí cụ thể của từng bài hát trong danh sách phát.  
+  Đây là một kỹ thuật phổ biến trong các bài toán tổ hợp phức tạp, cho phép chuyển bài toán “có nhớ” (memorization) từ trạng thái trước sang trạng thái sau.
+
+---
+
+## 6. Ví dụ minh họa
+
+Giả sử \( n = 3, goal = 3, k = 1 \):
+
+1. **Bước 0:**  
+   \( dp[0][0] = 1 \)  
+2. **Bước 1:**  
+   - Thêm bài mới: \( dp[1][1] = dp[0][0] \times (3-0) = 3 \)  
+3. **Bước 2:**  
+   Với \( dp[1][1] = 3 \):  
+   - Thêm bài mới: \( dp[2][2] = 3 \times (3-1) = 6 \)  
+   - Lặp lại: \( dp[2][1] \) không được cập nhật vì \( 1 - k = 0 \)  
+4. **Bước 3:**  
+   Với \( dp[2][2] = 6 \):  
+   - Thêm bài mới: \( dp[3][3] = 6 \times (3-2) = 6 \)  
+   - Lặp lại: \( dp[3][2] = 6 \times (2-1) = 6 \) (nhưng vì ta cần sử dụng đủ 3 bài, đáp số cần là \( dp[3][3] = 6 \))  
+
+Qua đó, ta thu được kết quả đúng.
+
+---
+
+## Kết luận
+
+Mấu chốt của bài toán nằm ở cách phân chia thành các bước chuyển trạng thái của DP với hai trường hợp:  
+- Thêm một bài mới (số lựa chọn là \( n - j \)).  
+- Lặp lại một bài hát đã dùng (số lựa chọn là \( j - k \) nếu \( j > k \)).  
+
+Công thức được suy ra từ việc tính số cách mở rộng dãy theo từng bước, kết hợp với việc đảm bảo rằng mọi bài hát đều phải xuất hiện ít nhất một lần. Đây là một kỹ thuật điển hình trong lập trình động và tổ hợp, giúp giải quyết bài toán một cách hiệu quả mà không cần liệt kê tất cả các trường hợp có thể.
+
+Nếu có phần nào chưa rõ, bạn cứ hỏi thêm để tôi có thể giải thích chi tiết hơn nhé!

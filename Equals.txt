@@ -1,0 +1,122 @@
+Hàm `equals()` trong Java là một phương thức được định nghĩa trong lớp `Object`, lớp cơ sở của tất cả các lớp trong Java. Phương thức này được sử dụng để so sánh **giá trị** của hai đối tượng, không phải chỉ so sánh **tham chiếu** (địa chỉ bộ nhớ của các đối tượng).
+
+### Định nghĩa phương thức `equals()`
+
+Phương thức `equals()` có cú pháp như sau:
+
+```java
+public boolean equals(Object obj);
+```
+
+- **Tham số**: `obj` là đối tượng cần so sánh với đối tượng gọi phương thức `equals()`.
+- **Kết quả**: Phương thức trả về giá trị kiểu boolean:
+  - `true`: Nếu đối tượng gọi phương thức `equals()` và đối tượng được truyền vào tham số `obj` có cùng giá trị.
+  - `false`: Nếu đối tượng gọi phương thức và đối tượng `obj` có giá trị khác nhau.
+
+### Phương thức `equals()` mặc định trong lớp `Object`
+
+Phương thức `equals()` được định nghĩa trong lớp `Object` như sau:
+
+```java
+public boolean equals(Object obj) {
+    return (this == obj);
+}
+```
+
+- Mặc định, `equals()` chỉ so sánh **tham chiếu** của đối tượng (tức là kiểm tra xem liệu đối tượng này có phải là cùng một đối tượng trong bộ nhớ với đối tượng `obj` hay không).
+- Vì vậy, phương thức mặc định của `equals()` trong lớp `Object` thực chất tương tự như việc sử dụng toán tử `==`.
+
+### Ghi đè phương thức `equals()` để so sánh giá trị
+
+Để làm cho phương thức `equals()` so sánh giá trị của các trường trong đối tượng (chẳng hạn so sánh các thuộc tính của đối tượng), bạn cần **ghi đè** phương thức này trong lớp của bạn.
+
+Ví dụ, trong lớp `MyStuff`, bạn có thể ghi đè `equals()` để so sánh giá trị của trường `name`:
+
+```java
+class MyStuff {
+    private String name;
+
+    MyStuff(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        // Kiểm tra xem đối tượng này có phải là đối tượng cùng lớp không
+        if (this == obj) {
+            return true;  // Cùng đối tượng
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false; // Nếu đối tượng null hoặc không phải cùng loại
+        }
+
+        // Chuyển đối tượng obj thành kiểu MyStuff để so sánh các trường
+        MyStuff myStuff = (MyStuff) obj;
+        
+        // So sánh trường 'name' của đối tượng này với đối tượng 'obj'
+        return name != null && name.equals(myStuff.name);
+    }
+}
+```
+
+### Giải thích chi tiết về hàm `equals()` trong ví dụ trên:
+
+1. **`this == obj`**: 
+   - Nếu đối tượng gọi phương thức (`this`) và đối tượng `obj` là cùng một đối tượng (cùng tham chiếu trong bộ nhớ), trả về `true` ngay lập tức. Điều này tránh việc phải thực hiện các phép so sánh không cần thiết nếu chúng là cùng một đối tượng.
+
+2. **`obj == null || getClass() != obj.getClass()`**:
+   - Nếu `obj` là `null`, hoặc nếu `obj` không phải là cùng một lớp với đối tượng `this` (so sánh loại của đối tượng), thì trả về `false`. Điều này đảm bảo rằng bạn không so sánh các đối tượng thuộc các lớp khác nhau hoặc với `null`.
+
+3. **`MyStuff myStuff = (MyStuff) obj;`**:
+   - Chuyển đối tượng `obj` thành kiểu `MyStuff` để có thể truy cập các trường của đối tượng đó. Đây là một phép ép kiểu (casting) vì chúng ta biết rằng `obj` là đối tượng cùng loại `MyStuff`.
+
+4. **`name != null && name.equals(myStuff.name)`**:
+   - Cuối cùng, chúng ta so sánh giá trị của trường `name` trong đối tượng gọi phương thức (`this.name`) với giá trị của trường `name` trong đối tượng `myStuff` (đối tượng `obj` đã được ép kiểu). Nếu cả hai giá trị `name` đều khác `null` và có cùng giá trị, phương thức sẽ trả về `true`, nghĩa là hai đối tượng có cùng giá trị.
+
+### Quy tắc chung khi ghi đè phương thức `equals()`
+
+Khi bạn ghi đè phương thức `equals()`, bạn nên tuân thủ một số quy tắc để đảm bảo rằng nó hoạt động đúng:
+
+1. **Phản xạ (Reflexive)**: Đối tượng phải luôn bằng chính nó.
+   ```java
+   obj.equals(obj) == true
+   ```
+
+2. **Đối xứng (Symmetric)**: Nếu `a.equals(b)` trả về `true`, thì `b.equals(a)` cũng phải trả về `true`.
+   ```java
+   a.equals(b) == true && b.equals(a) == true
+   ```
+
+3. **Chuyển vị (Transitive)**: Nếu `a.equals(b)` và `b.equals(c)` đều trả về `true`, thì `a.equals(c)` cũng phải trả về `true`.
+   ```java
+   a.equals(b) == true && b.equals(c) == true => a.equals(c) == true
+   ```
+
+4. **Consistent**: Nếu không có sự thay đổi nào giữa các lần gọi, `a.equals(b)` sẽ luôn trả về cùng một giá trị khi gọi nhiều lần.
+   ```java
+   a.equals(b) == true (nhiều lần gọi trả về cùng kết quả)
+   ```
+
+5. **Không so sánh với `null`**: Phương thức `equals()` phải trả về `false` khi so sánh với `null`:
+   ```java
+   a.equals(null) == false
+   ```
+
+### Ví dụ:
+
+```java
+MyStuff m1 = new MyStuff("PC");
+MyStuff m2 = new MyStuff("PC");
+MyStuff m3 = m1;
+
+System.out.println(m1.equals(m2)); // true (cùng giá trị "PC")
+System.out.println(m1.equals(m3)); // true (cùng tham chiếu)
+System.out.println(m1.equals(null)); // false (so sánh với null)
+```
+
+### Kết luận
+
+- **Phương thức `equals()`** trong Java dùng để so sánh **giá trị** của các đối tượng, thay vì so sánh **tham chiếu** như `==`.
+- Bạn cần ghi đè phương thức này trong các lớp của mình nếu muốn so sánh giá trị của các đối tượng theo cách tùy chỉnh.
+- Lưu ý các quy tắc khi ghi đè `equals()` để đảm bảo tính chính xác và hợp lý trong chương trình.

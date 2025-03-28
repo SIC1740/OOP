@@ -1,0 +1,199 @@
+Chúng ta hãy cùng đi sâu vào phân tích bài toán “Chia mảng” theo từng bước và suy nghĩ ra giải pháp như sau:
+
+---
+
+## 1. Hiểu Bài Toán
+
+Bài toán yêu cầu bạn chia một mảng số nguyên thành \( k \) mảng con liên tiếp (không rỗng) sao cho khi tính tổng các phần tử của từng mảng con, giá trị tổng lớn nhất trong số các mảng con đó là **nhỏ nhất có thể**.  
+Nói cách khác, nếu ta có các mảng con \( S_1, S_2, \dots, S_k \) với tổng lần lượt \( T_1, T_2, \dots, T_k \), ta cần tối ưu hóa giá trị
+
+\[
+\min \; \max(T_1, T_2, \dots, T_k)
+\]
+
+### Ví dụ:
+- Với \( \text{nums} = [7,2,5,10,8] \) và \( k = 2 \), các cách chia:
+  - Chia thành \([7]\) và \([2,5,10,8]\) cho ta tổng là 7 và 25. Giá trị lớn nhất là 25.
+  - Chia thành \([7,2,5]\) và \([10,8]\) cho ta tổng là 14 và 18. Giá trị lớn nhất là 18, tức là tối ưu hơn.
+
+---
+
+## 2. Xác Định Giới Hạn Tìm Kiếm
+
+Một nhận xét quan trọng để bắt đầu là xác định được **giới hạn dưới** và **giới hạn trên** cho giá trị mà ta muốn tối ưu (tức là giá trị của tổng lớn nhất):
+
+- **Giới hạn dưới:**  
+  - Mỗi mảng con phải chứa ít nhất một phần tử, nên tổng của mảng con nào đó không thể nhỏ hơn phần tử có giá trị lớn nhất trong mảng.
+  - Do đó, **giá trị thấp nhất có thể** là:  
+    \[
+    \text{low} = \max(\text{nums})
+    \]
+
+- **Giới hạn trên:**  
+  - Nếu ta không chia mảng (hay nói cách khác, \( k = 1 \)) thì giá trị tổng lớn nhất chính là tổng của toàn bộ mảng.
+  - Do đó, **giá trị cao nhất có thể** là:  
+    \[
+    \text{high} = \text{sum}(\text{nums})
+    \]
+
+---
+
+## 3. Ý Tưởng Giải Quyết: Tìm Kiếm Nhị Phân
+
+Với hai giới hạn trên, chúng ta có thể sử dụng **tìm kiếm nhị phân** trên khoảng \([\text{low}, \text{high}]\) để xác định giá trị tối ưu của "tổng lớn nhất" mà ta có thể đạt được bằng cách chia mảng thành \( k \) phần.
+
+### Các bước tìm kiếm nhị phân:
+
+1. **Khởi tạo:**
+   - \( \text{low} = \max(\text{nums}) \)
+   - \( \text{high} = \text{sum}(\text{nums}) \)
+
+2. **Lặp tìm kiếm:**
+   - Tính \( \text{mid} = \frac{\text{low} + \text{high}}{2} \).
+   - Kiểm tra xem:  
+     *Có thể chia mảng thành \( k \) mảng con sao cho tổng của mỗi mảng con không vượt quá \( \text{mid} \) hay không?*
+   - Nếu **được** (nghĩa là với giới hạn \( \text{mid} \) ta chỉ cần tối đa \( k \) mảng con hoặc ít hơn), ta có thể thử giảm \( \text{mid} \) để tìm giá trị nhỏ hơn, do đó đặt \( \text{high} = \text{mid} \).
+   - Nếu **không được** (cần nhiều hơn \( k \) mảng con), điều này cho thấy \( \text{mid} \) quá nhỏ, nên tăng giá trị bằng cách đặt \( \text{low} = \text{mid} + 1 \).
+
+3. **Khi nào dừng:**  
+   - Khi \( \text{low} \) bằng \( \text{high} \), giá trị này chính là đáp số tối ưu.
+
+### Hàm Kiểm Tra (canSplit):
+
+Giả sử ta có giới hạn \( \text{maxSum} \) là \( \text{mid} \) ở bước hiện tại. Ta sẽ duyệt qua mảng:
+- Duy trì một biến \( \text{currentSum} \) để cộng dồn các phần tử.
+- Nếu thêm một phần tử vào \( \text{currentSum} \) khiến nó vượt quá \( \text{maxSum} \), ta "cắt" đoạn đó lại và bắt đầu một mảng con mới, đồng thời tăng biến đếm số mảng con lên 1.
+- Nếu số mảng con cần tạo vượt quá \( k \) thì trả về *false*, ngược lại trả về *true*.
+
+---
+
+## 4. Lập Luận Bằng Quy Hoạch Động (DP) – Cách Tiếp Cận Khác
+
+Ngoài phương pháp tìm kiếm nhị phân, bài toán cũng có thể được giải bằng **quy hoạch động**. Ý tưởng của DP là định nghĩa:
+
+\[
+dp[i][j] = \text{tổng nhỏ nhất của mảng con có tổng lớn nhất khi chia } i \text{ phần tử đầu tiên thành } j \text{ mảng con}
+\]
+
+Với công thức truy hồi:
+\[
+dp[i][j] = \min_{x=j-1}^{i-1} \max(dp[x][j-1], \text{sum}(nums[x] \text{ đến } nums[i-1]))
+\]
+Tuy nhiên, vì giới hạn \( n \) có thể lên đến 1000, phương pháp DP có thể phức tạp hơn về mặt tính toán so với giải thuật tìm kiếm nhị phân.
+
+---
+
+## 5. Quy Trình Suy Nghĩ Để Đạt Được Phương Pháp Tìm Kiếm Nhị Phân
+
+1. **Quan sát bài toán:**  
+   - Ta cần chia mảng sao cho tổng của mỗi đoạn là “cân bằng” nhất có thể (tức là giá trị tổng lớn nhất giữa các đoạn được tối thiểu hóa).
+   
+2. **Đặt giới hạn cho giá trị cần tối ưu:**  
+   - Nhận ra rằng không thể có tổng của một đoạn nhỏ hơn phần tử lớn nhất (vì phần tử đó phải nằm trong một đoạn riêng).
+   - Tổng của toàn bộ mảng là giới hạn trên tự nhiên.
+   
+3. **Tìm cách kiểm tra một giá trị trung gian có khả thi:**  
+   - Xây dựng hàm kiểm tra khả năng “chia được mảng với tổng mỗi đoạn không vượt quá \( x \)”.
+   - Quyết định điểm cắt dựa trên khi tổng hiện tại vượt qua \( x \).
+
+4. **Áp dụng tìm kiếm nhị phân:**  
+   - Vì khoảng giá trị cần tối ưu là liên tục từ \( \max(\text{nums}) \) đến \( \text{sum}(\text{nums}) \), ta dùng tìm kiếm nhị phân để “đóng hẹp” khoảng này.
+   - Mỗi lần thử \( x = \text{mid} \), kiểm tra xem nếu có thể chia mảng thành \( k \) đoạn không.
+
+5. **Kết luận:**  
+   - Khi khoảng thu hẹp đến điểm mà \( \text{low} = \text{high} \), ta tìm được giá trị tối ưu cần tìm.
+
+---
+
+## 6. Tóm Tắt
+
+- **Bước 1:** Xác định giới hạn dưới (\( \max(\text{nums}) \)) và giới hạn trên (\( \text{sum}(\text{nums}) \)).
+- **Bước 2:** Sử dụng tìm kiếm nhị phân để tìm giá trị \( x \) (tức là tổng lớn nhất cho mỗi mảng con) sao cho có thể chia mảng thành \( k \) đoạn với mỗi đoạn có tổng không vượt quá \( x \).
+- **Bước 3:** Kiểm tra khả năng chia mảng với \( x \) thông qua một hàm duyệt mảng.
+- **Bước 4:** Khi \( \text{low} \) và \( \text{high} \) hội tụ, giá trị đó chính là đáp số bài toán.
+
+Hy vọng qua bài giảng này, bạn đã có cái nhìn rõ hơn về cách suy nghĩ và từng bước vận hành để giải quyết bài toán “Chia mảng”. Nếu còn thắc mắc hoặc cần làm rõ thêm bất cứ điểm nào, hãy cùng thảo luận thêm!
+//////////////////////////////////////////
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        // Đọc số lượng test cases
+        int t = Integer.parseInt(sc.nextLine().trim());
+        PartitionSolver solver = new PartitionSolver();
+        
+        // Với mỗi test case, đầu vào theo định dạng: 
+        // "3,3,1,6,4,6 2" 
+        // (mảng các số nguyên cách nhau bằng dấu phẩy, sau đó cách 1 dấu cách rồi là số k)
+        for (int i = 0; i < t; i++) {
+            String line = sc.nextLine().trim();
+            String[] parts = line.split(" ");
+            // Phần tử đầu tiên là chuỗi các số cách nhau bởi dấu phẩy
+            String[] numsStr = parts[0].split(",");
+            int[] nums = new int[numsStr.length];
+            for (int j = 0; j < numsStr.length; j++) {
+                nums[j] = Integer.parseInt(numsStr[j].trim());
+            }
+            // Phần thứ hai là giá trị của k
+            int k = Integer.parseInt(parts[1].trim());
+            
+            int result = solver.splitArray(nums, k);
+            System.out.println(result);
+        }
+        sc.close();
+    }
+}
+
+/**
+ * Lớp PartitionSolver chứa các phương thức để giải bài toán chia mảng.
+ */
+class PartitionSolver {
+    /**
+     * Phương thức splitArray nhận đầu vào là mảng số nguyên nums và số k, 
+     * trả về tổng nhỏ nhất của mảng con có tổng các phần tử lớn nhất khi chia mảng thành k phần liên tiếp.
+     */
+    public int splitArray(int[] nums, int k) {
+        // Xác định giới hạn tìm kiếm cho tổng lớn nhất:
+        // left là giá trị lớn nhất trong mảng, right là tổng toàn bộ mảng.
+        int left = 0, right = 0;
+        for (int num : nums) {
+            left = Math.max(left, num);
+            right += num;
+        }
+        
+        // Tìm kiếm nhị phân trên khoảng [left, right]
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            // Nếu có thể chia mảng thành k phần với tổng không vượt quá mid thì ta thử giảm mid
+            if (canSplit(nums, k, mid)) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return left;
+    }
+    
+    /**
+     * Phương thức canSplit kiểm tra xem có thể chia mảng nums thành k phần liên tiếp sao cho
+     * tổng của mỗi phần không vượt quá maxSum hay không.
+     */
+    private boolean canSplit(int[] nums, int k, int maxSum) {
+        int count = 1;    // bắt đầu với 1 mảng con
+        int currentSum = 0;
+        for (int num : nums) {
+            // Nếu cộng phần tử hiện tại vượt quá maxSum, ta bắt đầu một mảng con mới
+            if (currentSum + num > maxSum) {
+                count++;
+                currentSum = num;
+                if (count > k) {
+                    return false;
+                }
+            } else {
+                currentSum += num;
+            }
+        }
+        return true;
+    }
+}
