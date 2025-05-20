@@ -1,6 +1,6 @@
 import java.util.*;
 
-interface Identifialbe{
+interface Identifiable{
     String getId();
 }
 interface Payable{
